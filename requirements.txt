@@ -1,0 +1,4 @@
+patchright
+faker
+fake-useragent
+loguru
