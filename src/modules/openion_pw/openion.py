@@ -1,11 +1,10 @@
 import logging
 
-from patchright.async_api import BrowserContext, expect
+from patchright.async_api import BrowserContext
 
 
 from .constants import OpenionXPath
 from src.managers.playwright.base import PlaywrightManager
-from src.managers.rabby_wallet_pw.constants import RABBY_WALLET_URL
 
 
 class Openion:
@@ -23,8 +22,7 @@ class Openion:
         )
     
     async def get_rabby_wallet(self) -> None:
-        openion = await self.pw_manager.browser_context.new_page()
-        await openion.goto(self.url)
+        openion = await self.pw_manager.open_page(url=self.url)
         
         await self.pw_manager.click({
             'page': openion,
@@ -42,27 +40,34 @@ class Openion:
         self,
         chrome_store_id: str,
     ) -> None:
-        rabby_popup = f"chrome-extension://{chrome_store_id}/notification.html#/approval"
+        rabby_popup = f"chrome-extension://{chrome_store_id}/notification.html"
         
         extension_page = await self.pw_manager.open_extension_popup(url=rabby_popup)
         await self.pw_manager.click({
             'page': extension_page,
-            'locator': '//*[@id="root"]/div/div/div/div/div[3]/div/div/div/span[2]',
+            'locator': OpenionXPath.RABBY_APPROVAL,
             'delay_to_wait_element': 1,
         })
         await self.pw_manager.click({
             'page': extension_page,
-            'locator': '//*[@id="root"]/div/div/div/div/div[3]/div/div/button[1]',
+            'locator': OpenionXPath.SIGN,
             'delay_to_wait_element': 1,
         })
         await self.pw_manager.close_page(extension_page)
         
         sign_popup = await self.pw_manager.open_extension_popup(
-            url=rabby_popup,
+            url=rabby_popup + '#/approval',
             timeout=100
         )
         await self.pw_manager.click({
             'page': sign_popup,
-            'locator': '//*[@id="root"]/div/footer/div/section/div[2]/div/button',
+            'locator': OpenionXPath.CONFIRM_SIGN,
             'click_count': 2,
         })
+        
+    async def get_ref_code(self) -> str:
+        account_page = await self.pw_manager.open_page(
+            'https://openion.com/account/active'
+        )
+        ref_code = await account_page.locator(OpenionXPath.REF_CODE).inner_html()
+        return ref_code
