@@ -28,40 +28,39 @@ load_dotenv()
 PRIVATE_KEY = os.getenv('PRIVATE_KEY')
 EXTENSION_PATH = os.path.join(os.path.dirname(__file__), 'Rabby_v0.93.12')
 
+
 async def import_rabby_wallet():
     async with async_playwright() as pw:
-        browser_context = await pw.chromium.launch_persistent_context(
+        context = await pw.chromium.launch_persistent_context(
             user_data_dir='',
-            headless=False,
+            channel='chromium',
             args=[
                 f'--disable-extensions-except={EXTENSION_PATH}',
                 f'--load-extension={EXTENSION_PATH}',
                 '--disable-blink-features=AutomationControlled',
-                '--disable-notifications',
             ],
         )
 
         logger.info('Launching Rabby Wallet...')
-        
         rabby_wallet = RabbyWalletWithPlaywright(
             config=Config(
                 logger=logger,
                 store_identificator='mhmoonbcjahgigdhnmnlnppcgnlkmjim',
             ),
-            browser_context=browser_context,
+            browser_context=context,
         )
         openion = Openion(
-            url='https://openion.com/',
-            browser_context=browser_context,
+            url='https://openion.com/i/2mMykkBndKR',
+            browser_context=context,
             logger=logger,
         )
 
+        await rabby_wallet.import_by_private_key(PRIVATE_KEY) # type: ignore
 
-        await rabby_wallet.import_by_private_key('')
-        
         await openion.get_rabby_wallet()
         await openion.connect_rabby(rabby_wallet.store_identificator)
-        await asyncio.sleep(30)
-        
+        print(await openion.get_ref_code())
+        await context.close()
+
 
 asyncio.run(import_rabby_wallet())

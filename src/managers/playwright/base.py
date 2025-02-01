@@ -65,7 +65,7 @@ class PlaywrightManager:
                     timeout=timeout * 1000,
                 )
             except TimeoutError:
-                err_msg = 'Error: extension page hasn\'t opened in 10 seconds'
+                err_msg = f'Error: extension page hasn\'t opened in {timeout} seconds'
                 self.logger.error(err_msg)
                 raise Exception(err_msg)
 
@@ -75,7 +75,7 @@ class PlaywrightManager:
     async def open_page(
         self,
         url: Optional[str] = None,
-        timeout: Optional[int] = 10000,
+        timeout: int = 10,
     ) -> Page:
         try:
             self.logger.info(f'Opening new browser page with url: {url}...')
@@ -83,7 +83,7 @@ class PlaywrightManager:
             page = await self.browser_context.new_page()
 
             if url:
-                await page.goto(url, timeout=timeout)
+                await page.goto(url, timeout=timeout * 1000)
 
             return page
         except Exception as e:
@@ -114,8 +114,7 @@ class PlaywrightManager:
         while attempts < max_attempts: # type: ignore
             try:
                 timeout = delay_to_wait_element * 1000 # type: ignore
-                element = page.locator(locator)
-                await element.click(
+                await page.locator(locator).click(
                     timeout=timeout,
                     click_count=click_count
                 )
