@@ -2,3 +2,4 @@ patchright
 faker
 fake-useragent
 loguru
+python-dotenv

@@ -2,14 +2,14 @@ import asyncio
 import logging
 import os
 import sys
-from patchright.async_api import async_playwright
 
-from src.managers.rabby_wallet_pw.constants import RABBY_WALLET_URL
+from patchright.async_api import async_playwright
+from dotenv import load_dotenv
+
 from src.modules.openion_pw.openion import Openion
 from src.managers.rabby_wallet_pw.types import Config
 from src.managers.rabby_wallet_pw.rabby_wallet import RabbyWalletWithPlaywright
 
-EXTENSION_PATH = os.path.join(os.path.dirname(__file__), 'Rabby_v0.93.12')
 
 main_logger = logging.getLogger('main')
 main_logger.setLevel(logging.DEBUG)
@@ -23,6 +23,10 @@ file_handler.setLevel(logging.DEBUG)
 main_logger.addHandler(file_handler)
 
 logger = main_logger
+load_dotenv()
+
+PRIVATE_KEY = os.getenv('PRIVATE_KEY')
+EXTENSION_PATH = os.path.join(os.path.dirname(__file__), 'Rabby_v0.93.12')
 
 async def import_rabby_wallet():
     async with async_playwright() as pw:
