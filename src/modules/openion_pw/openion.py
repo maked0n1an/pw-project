@@ -42,9 +42,9 @@ class Openion:
         self,
         chrome_store_id: str,
     ) -> None:
-        rabby_approval_page = f"chrome-extension://{chrome_store_id}/notification.html#/approval"
+        rabby_popup = f"chrome-extension://{chrome_store_id}/notification.html#/approval"
         
-        extension_page = await self.pw_manager.open_extension_popup(url=rabby_approval_page)
+        extension_page = await self.pw_manager.open_extension_popup(url=rabby_popup)
         await self.pw_manager.click({
             'page': extension_page,
             'locator': '//*[@id="root"]/div/div/div/div/div[3]/div/div/div/span[2]',
@@ -55,11 +55,12 @@ class Openion:
             'locator': '//*[@id="root"]/div/div/div/div/div[3]/div/div/button[1]',
             'delay_to_wait_element': 1,
         })
+        await self.pw_manager.close_page(extension_page)
         
         sign_popup = await self.pw_manager.open_extension_popup(
-            url=f"chrome-extension://{chrome_store_id}/notification.html",
+            url=rabby_popup,
+            timeout=100
         )
-        await expect(sign_popup).to_have_url(rabby_approval_page)
         await self.pw_manager.click({
             'page': sign_popup,
             'locator': '//*[@id="root"]/div/footer/div/section/div[2]/div/button',

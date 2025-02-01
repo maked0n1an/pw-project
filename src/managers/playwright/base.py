@@ -49,12 +49,12 @@ class PlaywrightManager:
     async def open_extension_popup(
         self,
         url: str,
-        timeout: int = 10
+        timeout: int = 15
     ) -> Page:
         extension_page = None
         
         for page in self.browser_context.pages:
-            if page.url == url:
+            if url == page.url:
                 extension_page = page
                 break
             
@@ -68,7 +68,7 @@ class PlaywrightManager:
                 err_msg = 'Error: extension page hasn\'t opened in 10 seconds'
                 self.logger.error(err_msg)
                 raise Exception(err_msg)
-    
+
         await extension_page.bring_to_front()
         return extension_page
 
